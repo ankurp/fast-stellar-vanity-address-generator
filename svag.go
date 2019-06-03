@@ -1,8 +1,8 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"os"
 	"runtime"
 
 	"strings"
@@ -11,16 +11,16 @@ import (
 )
 
 func main() {
-	suffixes := os.Args[1:]
+	prefix := flag.Bool("prefix", false, "a bool")
+	flag.Parse()
+	suffixes := flag.Args()
 	for index, suffix := range suffixes {
 		suffixes[index] = strings.ToUpper(suffix)
 	}
 
-	numCPUs := runtime.NumCPU()
 	result := make(chan (*keypair.Full))
-
-	for i := 0; i < numCPUs; i++ {
-		go search(suffixes, result)
+	for i := 0; i < runtime.NumCPU(); i++ {
+		go search(suffixes, result, prefix)
 	}
 
 	keypair := <-result
@@ -28,7 +28,13 @@ func main() {
 	fmt.Println("Secret: ", keypair.Seed())
 }
 
-func search(suffixes []string, result chan<- (*keypair.Full)) {
+func search(suffixes []string, result chan<- (*keypair.Full), prefix *bool) {
+	var checkFunc func(string, string) bool
+	if *prefix {
+		checkFunc = strings.HasPrefix
+	} else {
+		checkFunc = strings.HasSuffix
+	}
 	for {
 		keypair, err := keypair.Random()
 		if err != nil {
@@ -37,7 +43,7 @@ func search(suffixes []string, result chan<- (*keypair.Full)) {
 		}
 
 		for _, suffix := range suffixes {
-			if strings.HasSuffix(keypair.Address(), suffix) {
+			if checkFunc(keypair.Address(), suffix) {
 				result <- keypair
 			}
 		}
