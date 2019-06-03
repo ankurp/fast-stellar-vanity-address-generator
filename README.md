@@ -35,5 +35,6 @@ For example: `svag cat dog`
 # Donate
 
 If you like this project, consider making a donation via Stellar to support its development:
-
-GBPPQIUAJTO3U6QRY4ONCFGEYZR5GAZQVGRN346GTSN3E2UX4DOGMOON
+```
+GAH5N24RWKLBBT7MLKSHRNAIKV45GUCBZZQ2PF4L6NLJXRWLY3DONATE
+```
