@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"runtime"
+	"time"
 
 	"strings"
 
@@ -18,14 +19,17 @@ func main() {
 		suffixes[index] = strings.ToUpper(suffix)
 	}
 
+	startTime := time.Now()
 	result := make(chan (*keypair.Full))
 	for i := 0; i < runtime.NumCPU(); i++ {
 		go search(suffixes, result, prefix)
 	}
 
 	keypair := <-result
+
 	fmt.Println("Public: ", keypair.Address())
 	fmt.Println("Secret: ", keypair.Seed())
+	fmt.Println("Took", time.Now().Sub(startTime))
 }
 
 func search(suffixes []string, result chan<- (*keypair.Full), prefix *bool) {
