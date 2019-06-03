@@ -15,27 +15,30 @@ func main() {
 	for index, suffix := range suffixes {
 		suffixes[index] = strings.ToUpper(suffix)
 	}
+
 	numCPUs := runtime.NumCPU()
-	for i := 1; i < numCPUs; i++ {
-		go search(suffixes)
+	result := make(chan (*keypair.Full))
+
+	for i := 0; i < numCPUs; i++ {
+		go search(suffixes, result)
 	}
-	search(suffixes)
+
+	keypair := <-result
+	fmt.Println("Public: ", keypair.Address())
+	fmt.Println("Secret: ", keypair.Seed())
 }
 
-func search(suffixes []string) {
+func search(suffixes []string, result chan<- (*keypair.Full)) {
 	for {
 		keypair, err := keypair.Random()
-
 		if err != nil {
-			fmt.Println("Error generating Stellar Account")
-			os.Exit(1)
+			fmt.Println("Error generating Stellar Account", err)
+			continue
 		}
 
 		for _, suffix := range suffixes {
 			if strings.HasSuffix(keypair.Address(), suffix) {
-				fmt.Println("Public: ", keypair.Address())
-				fmt.Println("Secret: ", keypair.Seed())
-				os.Exit(0)
+				result <- keypair
 			}
 		}
 	}
