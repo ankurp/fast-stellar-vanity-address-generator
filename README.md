@@ -16,8 +16,8 @@ Using this CLI tool you can generate a vanity URL that begins with or ends with 
 
 First install the CLI tool using `go`
 
-1. `go build`
-1. `./svag codr`
+1. `go get github.com/ankurp/fast-stellar-vanity-address-generator/svag`
+1. `$GOPATH/bin/svag codr`
 
 ### Search for multiple words
 
